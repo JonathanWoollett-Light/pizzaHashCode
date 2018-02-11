@@ -9,22 +9,21 @@ public class Program {
 	private final static int minTomatoes = 1;
 	private final static int minMushrooms = 1;
 	
-	//private ArrayList<ArrayList<Char>> pizza;
-	
 	private final static int pizzaXSize = 10;
 	private final static int pizzaYSize = 10;
-	private static char[][] pizza = new char[pizzaYSize][pizzaXSize];
-	private static int[][] pizzaSlices = new int[pizzaYSize][pizzaXSize];
+	private static char[][] pizza = new char[pizzaYSize][pizzaXSize];//this will likely have to be changed to be an ArrayList or Vector to accomodate inputs of varying pizza sizes
+	private static int[][] pizzaSlices = new int[pizzaYSize][pizzaXSize];//the same comment as made above applies here
 	
 	public static void main(String args[]) {
 		
 		makePizza();
 		
 		int sliceCounter = 0;
+		//loops through all coordinates in the pizza and creates a slice if possible, keep in mind there will still almost certainly be spaces after this has finished
 		for(int y = 0; y < pizzaYSize; y++) {
 			for(int x = 0; x < pizzaXSize; x++) {
 				if(pizzaSlices[y][x] == 0) {
-					if(createSlice(y, x, sliceCounter)) {
+					if(createSlice(y, x, sliceCounter)) {//if a slice can be created from this origin
 						sliceCounter++;
 					}
 				}
@@ -32,19 +31,21 @@ public class Program {
 		}
 	}
 	public static boolean createSlice(int originX, int originY, int sliceCounter) {
+		/* runs through all methods of creating slices then picks slice with smallest size
+		 * the red underline here seems stupid since it actually does always return a boolean)
+		 */
 		int firstMethodSize = verticalXSlice(originX, originY, sliceCounter);
-		if(firstMethodSize == minTomatoes + minMushrooms) {
+		if(firstMethodSize == minTomatoes + minMushrooms) {//if this method is the smallest any method can be
 			return true;
 		}
-		revertSlice(sliceCounter + 1);
+		
 		int minValue = firstMethodSize;
 		int minIndex = 0;
 		
 		int secondMethodSize = verticalYSlice(originX, originY, sliceCounter);
-		if(secondMethodSize == minTomatoes + minMushrooms) {
+		if(secondMethodSize == minTomatoes + minMushrooms) {//if this method is the smallest any method can be
 			return true;
 		}
-		revertSlice(sliceCounter + 1);
 		
 		if(secondMethodSize < minValue) {
 			minValue = secondMethodSize;
@@ -52,10 +53,9 @@ public class Program {
 		}
 		
 		int thirdMethodSize = horizontalXSlice(originX, originY, sliceCounter);
-		if(thirdMethodSize == minTomatoes + minMushrooms) {
+		if(thirdMethodSize == minTomatoes + minMushrooms) {//if this method is the smallest any method can be
 			return true;
 		}
-		revertSlice(sliceCounter + 1);
 		
 		if(thirdMethodSize < minValue) {
 			minValue = thirdMethodSize;
@@ -63,10 +63,10 @@ public class Program {
 		}
 		
 		int fourthMethodSize = horizontalYSlice(originX, originY, sliceCounter);
-		if(fourthMethodSize == minTomatoes + minMushrooms) {
+		if(fourthMethodSize == minTomatoes + minMushrooms) {//if this method is the smallest any method can be
 			return true;
 		}
-		revertSlice(sliceCounter + 1);
+		
 		if(fourthMethodSize < minValue) {
 			minValue = fourthMethodSize;
 			minIndex = 3;
@@ -76,7 +76,7 @@ public class Program {
 		if(minValue == Integer.MAX_VALUE) {
 			return false;
 		}
-		switch(minIndex) {
+		switch(minIndex) {//pick smallest slicing method
 		case 0:
 			verticalXSlice(originX, originY, sliceCounter);
 			break;
@@ -98,7 +98,7 @@ public class Program {
 		int firstMethodSize = 0;
 		
 		for(int y = originY; y < pizzaYSize; y++) {
-			if(pizzaSlices[y][originX] != 0 || pizzaSlices[y][originX + 1] != 0 || firstMethodSize == maxSliceSize) {
+			if(pizzaSlices[y][originX] != 0 || pizzaSlices[y][originX + 1] != 0 || firstMethodSize >= maxSliceSize) {
 				revertSlice(true, originX, originY, y);
 				return Integer.MAX_VALUE;
 			}
@@ -119,6 +119,9 @@ public class Program {
 			
 			firstMethodSize += 2;
 			if(containedTomatoes >= minTomatoes && containedMushrooms >= minMushrooms) {
+				if(firstMethodSize != minTomatoes + minMushrooms) {//it is only necessary to revert slice size if it is not the smallest possible size
+					revertSlice(true, originX, originY, y);
+				}
 				return firstMethodSize;
 			}
 		}
@@ -129,7 +132,7 @@ public class Program {
 		int containedTomatoes = 0;
 		int containedMushrooms = 0;
 		for(int y = originY; y < pizzaYSize; y++) {
-			if(pizzaSlices[y][originX] != 0 || secondMethodSize == maxSliceSize) {
+			if(pizzaSlices[y][originX] != 0 || secondMethodSize >= maxSliceSize) {
 				revertSlice(true, originX, originY, false, y);
 				return Integer.MAX_VALUE;
 			}
@@ -143,7 +146,10 @@ public class Program {
 			}
 			secondMethodSize++;
 			if(containedTomatoes >= minTomatoes && containedMushrooms >= minMushrooms) {
-				return secondMethodSize;
+				if(secondMethodSize != minTomatoes + minMushrooms) {//it is only necessary to revert slice size if it is not the smallest possible size
+					revertSlice(true, originX, originY, false, y);
+				}
+				return secondMethodSize;//there is not a revert here since if
 			}
 		}
 		for(int y = originY; y < pizzaYSize; y++) {
@@ -165,6 +171,9 @@ public class Program {
 			revertSlice(true, originX, originY, true, pizzaYSize - 1);
 			return Integer.MAX_VALUE;
 		}
+		if(secondMethodSize != minTomatoes + minMushrooms) {//it is only necessary to revert slice size if it is not the smallest possible size
+			revertSlice(true, originX, originY, true, pizzaYSize - 1);
+		}
 		return secondMethodSize;
 	}
 	public static int horizontalXSlice(int originX, int originY, int sliceCounter) {
@@ -172,7 +181,7 @@ public class Program {
 		int containedTomatoes = 0;
 		int containedMushrooms = 0;
 		for(int x = originX; x < pizzaXSize; x++) {
-			if(pizzaSlices[originY][x] != 0 || pizzaSlices[originY + 1][x] != 0 || thirdMethodSize == maxSliceSize) {
+			if(pizzaSlices[originY][x] != 0 || pizzaSlices[originY + 1][x] != 0 || thirdMethodSize >= maxSliceSize) {
 				revertSlice(false, originX, originY, x);
 				return Integer.MAX_VALUE;
 			}
@@ -193,6 +202,9 @@ public class Program {
 			
 			thirdMethodSize += 2;
 			if(containedTomatoes >= minTomatoes && containedMushrooms >= minMushrooms) {
+				if(thirdMethodSize != minTomatoes + minMushrooms) {//it is only necessary to revert slice size if it is not the smallest possible size
+					revertSlice(false, originX, originY, x);
+				}
 				return thirdMethodSize;
 			}
 		}
@@ -203,7 +215,7 @@ public class Program {
 		int containedTomatoes = 0;
 		int containedMushrooms = 0;
 		for(int x = originX; x < pizzaXSize; x++) {
-			if(pizzaSlices[originY][x] != 0 || fourthMethodSize == maxSliceSize) {
+			if(pizzaSlices[originY][x] != 0 || fourthMethodSize >= maxSliceSize) {
 				revertSlice(false, originX, originY, false, x);
 				return Integer.MAX_VALUE;
 			}
@@ -217,6 +229,9 @@ public class Program {
 			}
 			fourthMethodSize++;
 			if(containedTomatoes >= minTomatoes && containedMushrooms >= minMushrooms) {
+				if(fourthMethodSize != minTomatoes + minMushrooms) {//it is only necessary to revert slice size if it is not the smallest possible size
+					revertSlice(false, originX, originY, false, x);
+				}
 				return fourthMethodSize;
 			}
 		}
@@ -239,11 +254,13 @@ public class Program {
 			revertSlice(false, originX, originY, true, pizzaXSize - 1);
 			return Integer.MAX_VALUE;
 		}
+		if(fourthMethodSize != minTomatoes + minMushrooms) {//it is only necessary to revert slice size if it is not the smallest possible size
+			revertSlice(false, originX, originY, true, pizzaXSize - 1);
+		}
 		return fourthMethodSize;
 	}
 	
-	
-	public static void revertSlice(int sliceCounter) {
+	public static void revertSlice(int sliceCounter) {//although this method can be used for every slicing type, it is more efficient to use the more specific methods
 		for(int y = 0; y < pizzaYSize; y++) {
 			for(int x = 0; x < pizzaYSize; x++) {
 				if(pizza[y][x] == sliceCounter) {
@@ -252,7 +269,7 @@ public class Program {
 			}
 		}
 	}
-	public static void revertSlice(boolean method, int originX, int originY, int lastValue) {
+	public static void revertSlice(boolean method, int originX, int originY, int lastValue) {//if method = true its vertical slice otherwise its horizontal
 		if(method) {
 			for(int y = lastValue; y >= originY; y--) {
 				pizzaSlices[y][originX] = 0;
@@ -266,7 +283,7 @@ public class Program {
 		}
 		
 	}
-	public static void revertSlice(boolean method, int originX, int originY, boolean twoColumns, int lastValue) {
+	public static void revertSlice(boolean method, int originX, int originY, boolean twoColumns, int lastValue) {//if method = true its vertical slice otherwise its horizontal
 		if(method) {
 			for(int y = lastValue; y >= originY; y--) {
 				pizzaSlices[y][originX] = 0;
@@ -288,15 +305,14 @@ public class Program {
 		}
 		
 	}
-	public static void makePizza() {
+	
+	public static void makePizza() {//randomly generate a pizza for testing
 		Random rand = new Random();
 		for(int y = 0; y < pizzaYSize; y++) {
 			for(int x = 0; x < pizzaXSize; x++) {
-				switch(rand.nextInt() % 2) {
-				case 0:
+				if(rand.nextInt() % 2 == 0) {
 					pizza[y][x] = 'T';
-					break;
-				case 1:
+				}else {
 					pizza[y][x] = 'M';
 				}
 			}
