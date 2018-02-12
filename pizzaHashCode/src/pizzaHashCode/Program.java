@@ -1,27 +1,38 @@
 package pizzaHashCode;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.NoSuchElementException;
 //import java.util.List;
 //import java.util.ArrayList;
 import java.util.Random;
+import java.util.Scanner;
 
 public class Program {
-	private final static int maxSliceSize = 6;
-	private final static int minTomatoes = 1;
-	private final static int minMushrooms = 1;
+	// This is H on the problem sheet
+	private static int maxSliceSize = 6;
 	
-	private final static int pizzaXSize = 10;
-	private final static int pizzaYSize = 10;
-	private static char[][] pizza = new char[pizzaYSize][pizzaXSize];//this will likely have to be changed to be an ArrayList or Vector to accomodate inputs of varying pizza sizes
-	private static int[][] pizzaSlices = new int[pizzaYSize][pizzaXSize];//the same comment as made above applies here
+	// Both equivalent to L
+	private static int minTomatoes = 1;
+	private static int minMushrooms = 1;
 	
-	public static void main(String args[]) {
+	private static int rows = 0;
+	private static int columns = 0;
+	
+	private static char[][] pizza = new char[columns][rows];
+	private static int[][] pizzaSlices = new int[columns][rows];
+	
+	public static void main(String args[]) throws FileNotFoundException, IOException {
 		
+		inputParser();
 		makePizza();
 		
 		int sliceCounter = 0;
 		//loops through all coordinates in the pizza and creates a slice if possible, keep in mind there will still almost certainly be spaces after this has finished
-		for(int y = 0; y < pizzaYSize; y++) {
-			for(int x = 0; x < pizzaXSize; x++) {
+		for(int y = 0; y < columns; y++) {
+			for(int x = 0; x < rows; x++) {
 				if(pizzaSlices[y][x] == 0) {
 					if(createSlice(y, x, sliceCounter)) {//if a slice can be created from this origin
 						sliceCounter++;
@@ -97,7 +108,7 @@ public class Program {
 		int containedMushrooms = 0;
 		int firstMethodSize = 0;
 		
-		for(int y = originY; y < pizzaYSize; y++) {
+		for(int y = originY; y < columns; y++) {
 			if(pizzaSlices[y][originX] != 0 || pizzaSlices[y][originX + 1] != 0 || firstMethodSize >= maxSliceSize) {
 				revertSlice(true, originX, originY, y);
 				return Integer.MAX_VALUE;
@@ -131,7 +142,7 @@ public class Program {
 		int secondMethodSize = 0;
 		int containedTomatoes = 0;
 		int containedMushrooms = 0;
-		for(int y = originY; y < pizzaYSize; y++) {
+		for(int y = originY; y < columns; y++) {
 			if(pizzaSlices[y][originX] != 0 || secondMethodSize >= maxSliceSize) {
 				revertSlice(true, originX, originY, false, y);
 				return Integer.MAX_VALUE;
@@ -152,7 +163,7 @@ public class Program {
 				return secondMethodSize;//there is not a revert here since if
 			}
 		}
-		for(int y = originY; y < pizzaYSize; y++) {
+		for(int y = originY; y < columns; y++) {
 			if(pizzaSlices[y][originX + 1] != 0) {
 				revertSlice(true, originX, originY, true, y);
 				return Integer.MAX_VALUE;
@@ -166,13 +177,13 @@ public class Program {
 			
 			pizzaSlices[y][originX + 1] = sliceCounter + 1;
 		}
-		secondMethodSize += pizzaYSize - originY;
+		secondMethodSize += columns - originY;
 		if(!(containedTomatoes >= minTomatoes && containedMushrooms >= minMushrooms) || secondMethodSize > maxSliceSize) {
-			revertSlice(true, originX, originY, true, pizzaYSize - 1);
+			revertSlice(true, originX, originY, true, columns - 1);
 			return Integer.MAX_VALUE;
 		}
 		if(secondMethodSize != minTomatoes + minMushrooms) {//it is only necessary to revert slice size if it is not the smallest possible size
-			revertSlice(true, originX, originY, true, pizzaYSize - 1);
+			revertSlice(true, originX, originY, true, columns - 1);
 		}
 		return secondMethodSize;
 	}
@@ -180,7 +191,7 @@ public class Program {
 		int thirdMethodSize = 0;
 		int containedTomatoes = 0;
 		int containedMushrooms = 0;
-		for(int x = originX; x < pizzaXSize; x++) {
+		for(int x = originX; x < rows; x++) {
 			if(pizzaSlices[originY][x] != 0 || pizzaSlices[originY + 1][x] != 0 || thirdMethodSize >= maxSliceSize) {
 				revertSlice(false, originX, originY, x);
 				return Integer.MAX_VALUE;
@@ -214,7 +225,7 @@ public class Program {
 		int fourthMethodSize = 0;
 		int containedTomatoes = 0;
 		int containedMushrooms = 0;
-		for(int x = originX; x < pizzaXSize; x++) {
+		for(int x = originX; x < rows; x++) {
 			if(pizzaSlices[originY][x] != 0 || fourthMethodSize >= maxSliceSize) {
 				revertSlice(false, originX, originY, false, x);
 				return Integer.MAX_VALUE;
@@ -235,7 +246,7 @@ public class Program {
 				return fourthMethodSize;
 			}
 		}
-		for(int x = originX; x < pizzaXSize; x++) {
+		for(int x = originX; x < rows; x++) {
 			if(pizzaSlices[originY + 1][x] != 0) {
 				revertSlice(false, originX, originY, true, x);
 				return Integer.MAX_VALUE;
@@ -249,20 +260,20 @@ public class Program {
 			
 			pizzaSlices[originY + 1][x] = sliceCounter + 1;
 		}
-		fourthMethodSize += pizzaXSize - originX;
+		fourthMethodSize += rows - originX;
 		if(!(containedTomatoes >= minTomatoes && containedMushrooms >= minMushrooms) || fourthMethodSize > maxSliceSize) {
-			revertSlice(false, originX, originY, true, pizzaXSize - 1);
+			revertSlice(false, originX, originY, true, rows - 1);
 			return Integer.MAX_VALUE;
 		}
 		if(fourthMethodSize != minTomatoes + minMushrooms) {//it is only necessary to revert slice size if it is not the smallest possible size
-			revertSlice(false, originX, originY, true, pizzaXSize - 1);
+			revertSlice(false, originX, originY, true, rows - 1);
 		}
 		return fourthMethodSize;
 	}
 	
 	public static void revertSlice(int sliceCounter) {//although this method can be used for every slicing type, it is more efficient to use the more specific methods
-		for(int y = 0; y < pizzaYSize; y++) {
-			for(int x = 0; x < pizzaYSize; x++) {
+		for(int y = 0; y < columns; y++) {
+			for(int x = 0; x < columns; x++) {
 				if(pizza[y][x] == sliceCounter) {
 					pizza[y][x] = 0;
 				}
@@ -306,10 +317,80 @@ public class Program {
 		
 	}
 	
-	public static void makePizza() {//randomly generate a pizza for testing
+	public static void inputParser() throws FileNotFoundException, IOException
+	{
+		Scanner reader = new Scanner(System.in);  
+		
+		System.out.println("Choose which file to parse (1 is big, 2 is example, 3 is medium, 4 is small):");
+		int inputChoice = reader.nextInt(); 
+		
+		while(inputChoice > 0 && inputChoice > 4)
+		{
+			System.out.println("Wrong input.  Please try again (1 is big, 2 is example, 3 is medium, 4 is small):");
+			inputChoice = reader.nextInt(); 
+		}
+		
+		reader.close();
+		
+		String typeOfPizza = "";
+		String file = "";
+		
+		if(inputChoice == 1)
+		{
+			typeOfPizza = "big.";
+			file = "big.in";
+		}
+		else if(inputChoice == 2)
+		{
+			typeOfPizza = "example.";
+			file = "example.in";
+		}
+		else if(inputChoice == 3)
+		{
+			typeOfPizza = "medium.";
+			file = "medium.in";
+		}
+		else if(inputChoice == 4)
+		{
+			typeOfPizza = "small.";
+			file = "small.in";
+		}
+		
+		try(BufferedReader br = new BufferedReader(new FileReader(file))) 
+		{				
+		    String line = br.readLine();
+		    
+		    char rChar = line.charAt(0);
+		    char cChar = line.charAt(2);
+		    char lChar = line.charAt(4);
+		    char hChar = line.charAt(6);
+		    
+		    
+	        int r = Character.getNumericValue(rChar); 
+	        int c = Character.getNumericValue(cChar); 
+	        int l = Character.getNumericValue(lChar); 
+	        int h = Character.getNumericValue(hChar); 
+		    
+		    rows = r;
+		    columns = c;
+		    maxSliceSize = h;
+		    minTomatoes = l;
+		    minMushrooms = l;
+		    
+		    pizza = new char[columns][rows];
+		    pizzaSlices = new int[columns][rows];
+		}
+		catch (FileNotFoundException e)
+		{
+			throw e;
+		}
+	}
+	
+	public static void makePizza()
+	{
 		Random rand = new Random();
-		for(int y = 0; y < pizzaYSize; y++) {
-			for(int x = 0; x < pizzaXSize; x++) {
+		for(int y = 0; y < columns; y++) {
+			for(int x = 0; x < rows; x++) {
 				if(rand.nextInt() % 2 == 0) {
 					pizza[y][x] = 'T';
 				}else {
