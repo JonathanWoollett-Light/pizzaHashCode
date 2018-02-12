@@ -30,8 +30,8 @@ public class Program {
 		
 		int sliceCounter = 0;
 		//loops through all coordinates in the pizza and creates a slice if possible, keep in mind there will still almost certainly be spaces after this has finished
-		for(int y = 0; y < columns; y++) {
-			for(int x = 0; x < rows; x++) {
+		for(int y = 1; y < columns + 1; y++) {
+			for(int x = 1; x < rows + 1; x++) {
 				if(pizzaSlices.get(y).get(x) == 0) {
 					if(createSlice(y, x, sliceCounter)) {//if a slice can be created from this origin
 						sliceCounter++;
@@ -107,7 +107,7 @@ public class Program {
 		int containedMushrooms = 0;
 		int firstMethodSize = 0;
 		
-		for(int y = originY; y < columns; y++) {
+		for(int y = originY; y < columns + 1; y++) {
 			if(pizzaSlices.get(y).get(originX) != 0 || pizzaSlices.get(y).get(originX + 1) != 0 || firstMethodSize >= maxSliceSize) {
 				revertSlice(true, originX, originY, y);
 				return Integer.MAX_VALUE;
@@ -141,7 +141,7 @@ public class Program {
 		int secondMethodSize = 0;
 		int containedTomatoes = 0;
 		int containedMushrooms = 0;
-		for(int y = originY; y < columns; y++) {
+		for(int y = originY; y < columns + 1; y++) {
 			if(pizzaSlices.get(y).get(originX) != 0 || secondMethodSize >= maxSliceSize) {
 				revertSlice(true, originX, originY, false, y);
 				return Integer.MAX_VALUE;
@@ -162,7 +162,7 @@ public class Program {
 				return secondMethodSize;//there is not a revert here since if
 			}
 		}
-		for(int y = originY; y < columns; y++) {
+		for(int y = originY; y < columns + 1; y++) {
 			if(pizzaSlices.get(y).get(originX + 1) != 0) {
 				revertSlice(true, originX, originY, true, y);
 				return Integer.MAX_VALUE;
@@ -190,7 +190,7 @@ public class Program {
 		int thirdMethodSize = 0;
 		int containedTomatoes = 0;
 		int containedMushrooms = 0;
-		for(int x = originX; x < rows; x++) {
+		for(int x = originX; x < rows + 1; x++) {
 			if(pizzaSlices.get(originY).get(x) != 0 || pizzaSlices.get(originY + 1).get(x) != 0 || thirdMethodSize >= maxSliceSize) {
 				revertSlice(false, originX, originY, x);
 				return Integer.MAX_VALUE;
@@ -224,7 +224,7 @@ public class Program {
 		int fourthMethodSize = 0;
 		int containedTomatoes = 0;
 		int containedMushrooms = 0;
-		for(int x = originX; x < rows; x++) {
+		for(int x = originX; x < rows + 1; x++) {
 			if(pizzaSlices.get(originY).get(x) != 0 || fourthMethodSize >= maxSliceSize) {
 				revertSlice(false, originX, originY, false, x);
 				return Integer.MAX_VALUE;
@@ -245,7 +245,7 @@ public class Program {
 				return fourthMethodSize;
 			}
 		}
-		for(int x = originX; x < rows; x++) {
+		for(int x = originX; x < rows + 1; x++) {
 			if(pizzaSlices.get(originY).get(x) != 0) {
 				revertSlice(false, originX, originY, true, x);
 				return Integer.MAX_VALUE;
@@ -271,8 +271,8 @@ public class Program {
 	}
 	
 	public static void revertSlice(int sliceCounter) {//although this method can be used for every slicing type, it is more efficient to use the more specific methods
-		for(int y = 0; y < columns; y++) {
-			for(int x = 0; x < columns; x++) {
+		for(int y = 1; y < columns + 1; y++) {
+			for(int x = 1; x < columns + 1; x++) {
 				if(pizza.get(y).get(x) == sliceCounter) {
 					pizza.get(y).set(x, (char) 0);
 				}
@@ -281,12 +281,12 @@ public class Program {
 	}
 	public static void revertSlice(boolean method, int originX, int originY, int lastValue) {//if method = true its vertical slice otherwise its horizontal
 		if(method) {
-			for(int y = lastValue; y >= originY; y--) {
+			for(int y = lastValue; y >= originY + 1; y--) {
 				pizzaSlices.get(y).set(originX, 0);
 				pizzaSlices.get(y).set(originX + 1, 0);
 			}
 		}else {
-			for(int x = lastValue; x >= originX; x--) {
+			for(int x = lastValue; x >= originX + 1; x--) {
 				pizzaSlices.get(x).set(originY, 0);
 				pizzaSlices.get(x).set(originY + 1, 0);
 			}
@@ -295,20 +295,20 @@ public class Program {
 	}
 	public static void revertSlice(boolean method, int originX, int originY, boolean twoColumns, int lastValue) {//if method = true its vertical slice otherwise its horizontal
 		if(method) {
-			for(int y = lastValue; y >= originY; y--) {
+			for(int y = lastValue; y >= originY + 1; y--) {
 				pizzaSlices.get(y).set(originX, 0);
 			}
 			if(twoColumns) {
-				for(int y = lastValue; y >= originY; y--) {
+				for(int y = lastValue; y >= originY + 1; y--) {
 					pizzaSlices.get(y).set(originX + 1, 0);
 				}
 			}
 		}else {
-			for(int x = lastValue; x >= originX; x--) {
+			for(int x = lastValue; x >= originX + 1; x--) {
 				pizzaSlices.get(x).set(originY, 0);
 			}
 			if(twoColumns) {
-				for(int x = lastValue; x >= originX; x--) {
+				for(int x = lastValue; x >= originX + 1; x--) {
 					pizzaSlices.get(x).set(originY + 1, 0);
 				}
 			}
@@ -385,8 +385,8 @@ public class Program {
 	public static void makePizza()
 	{
 		Random rand = new Random();
-		for(int y = 0; y < columns; y++) {
-			for(int x = 0; x < rows; x++) {
+		for(int y = 1; y < columns + 1; y++) {
+			for(int x = 1; x < rows + 1; x++) {
 				if(rand.nextInt() % 2 == 0) {
 					pizza.get(y).set(x, 'T');
 				}else {
