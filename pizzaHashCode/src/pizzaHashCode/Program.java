@@ -17,6 +17,9 @@ public class Program {
 	private static int minTomatoes = 1;
 	private static int minMushrooms = 1;
 	
+	// Y is rows
+	// X is columns
+	
 	private static int rows = 0;
 	private static int columns = 0;
 	
