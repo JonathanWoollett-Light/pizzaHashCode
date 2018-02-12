@@ -5,15 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-//import java.util.List;
-//import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Program {
-	// Boolean to create the array when you get rows and columns
-	private boolean retrievedRowsColumns = false;
-	
+
 	// This is H on the problem sheet
 	private static int maxSliceSize = 6;
 	
