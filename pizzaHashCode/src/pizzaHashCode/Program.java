@@ -47,7 +47,7 @@ public class Program {
 				if(pizzaSlices.get(y).get(x) == 0) {//if this space is not in any other slice
 					if(createSlice(x, y, sliceCounter)) {//if a slice can be created from this origin
 						sliceCounter++;
-						print2dIntArrayList(pizzaSlices);
+						//print2dIntArrayList(pizzaSlices);
 					}
 				}
 			}
@@ -56,9 +56,9 @@ public class Program {
 	}
 	
 	public static boolean createSlice(int originX, int originY, int sliceCounter) {//runs through all methods of creating slices then picks slice with smallest size
-		System.out.println("---------------------" + (sliceCounter + 1) + "---------------------");
+		//System.out.println("---------------------" + (sliceCounter + 1) + "---------------------");
 		int firstMethodSize = verticalXSlice(originX, originY, sliceCounter, true);
-		System.out.println("firstMethodSize: " + firstMethodSize);
+		//System.out.println("firstMethodSize: " + firstMethodSize);
 		if(firstMethodSize == minTomatoes + minMushrooms) {//if this method is the smallest any method can be
 			return true;
 		}
@@ -66,7 +66,7 @@ public class Program {
 		int minValue = firstMethodSize;
 		int minIndex = 0;
 		int secondMethodSize = verticalYSlice(originX, originY, sliceCounter, true);
-		System.out.println("secondMethodSize: " + secondMethodSize);
+		//System.out.println("secondMethodSize: " + secondMethodSize);
 		if(secondMethodSize == minTomatoes + minMushrooms) {//if this method is the smallest any method can be
 			return true;
 		}
@@ -77,7 +77,7 @@ public class Program {
 		}
 		
 		int thirdMethodSize = horizontalXSlice(originX, originY, sliceCounter, true);
-		System.out.println("thirdMethodSize: " + thirdMethodSize);
+		//System.out.println("thirdMethodSize: " + thirdMethodSize);
 		if(thirdMethodSize == minTomatoes + minMushrooms) {//if this method is the smallest any method can be
 			return true;
 		}
@@ -88,7 +88,7 @@ public class Program {
 		}
 		
 		int fourthMethodSize = horizontalYSlice(originX, originY, sliceCounter, true);
-		System.out.println("fourthMethodSize: " + fourthMethodSize);
+		//System.out.println("fourthMethodSize: " + fourthMethodSize);
 		if(fourthMethodSize == minTomatoes + minMushrooms) {//if this method is the smallest any method can be
 			return true;
 		}
@@ -99,8 +99,8 @@ public class Program {
 			
 		}
 		
-		System.out.println("minValue: " + minValue);
-		System.out.println("minIndex: " + minIndex);
+		//System.out.println("minValue: " + minValue);
+		//System.out.println("minIndex: " + minIndex);
 		if(minValue > maxSliceSize) {//if none of the functions could create a slice
 			return false;
 		}
