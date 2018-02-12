@@ -36,6 +36,10 @@ public class Program {
 		intialisePizzaSlices();
 		print2dIntArrayList(pizzaSlices);
 		
+		System.out.println("minTomatoes: " + minTomatoes);
+		System.out.println("minMushrooms: " + minMushrooms);
+		System.out.println("maxSliceSize: " + maxSliceSize);
+		
 		int sliceCounter = 0;
 		//loops through all coordinates in the pizza and creates a slice if possible, keep in mind there will still almost certainly be spaces after this has finished
 		for(int y = 0; y < rows; y++) {
@@ -43,25 +47,26 @@ public class Program {
 				if(pizzaSlices.get(y).get(x) == 0) {//if this space is not in any other slice
 					if(createSlice(x, y, sliceCounter)) {//if a slice can be created from this origin
 						sliceCounter++;
+						print2dIntArrayList(pizzaSlices);
 					}
 				}
 			}
 		}
+		print2dIntArrayList(pizzaSlices);
 	}
 	
-	public static boolean createSlice(int originX, int originY, int sliceCounter) {
-		/* runs through all methods of creating slices then picks slice with smallest size
-		 * the red underline here seems stupid since it actually does always return a boolean)
-		 */
-		int firstMethodSize = verticalXSlice(originX, originY, sliceCounter);
+	public static boolean createSlice(int originX, int originY, int sliceCounter) {//runs through all methods of creating slices then picks slice with smallest size
+		System.out.println("---------------------" + (sliceCounter + 1) + "---------------------");
+		int firstMethodSize = verticalXSlice(originX, originY, sliceCounter, true);
+		System.out.println("firstMethodSize: " + firstMethodSize);
 		if(firstMethodSize == minTomatoes + minMushrooms) {//if this method is the smallest any method can be
 			return true;
 		}
 		
 		int minValue = firstMethodSize;
 		int minIndex = 0;
-		
-		int secondMethodSize = verticalYSlice(originX, originY, sliceCounter);
+		int secondMethodSize = verticalYSlice(originX, originY, sliceCounter, true);
+		System.out.println("secondMethodSize: " + secondMethodSize);
 		if(secondMethodSize == minTomatoes + minMushrooms) {//if this method is the smallest any method can be
 			return true;
 		}
@@ -71,7 +76,8 @@ public class Program {
 			minIndex = 1;
 		}
 		
-		int thirdMethodSize = horizontalXSlice(originX, originY, sliceCounter);
+		int thirdMethodSize = horizontalXSlice(originX, originY, sliceCounter, true);
+		System.out.println("thirdMethodSize: " + thirdMethodSize);
 		if(thirdMethodSize == minTomatoes + minMushrooms) {//if this method is the smallest any method can be
 			return true;
 		}
@@ -81,7 +87,8 @@ public class Program {
 			minIndex = 2;
 		}
 		
-		int fourthMethodSize = horizontalYSlice(originX, originY, sliceCounter);
+		int fourthMethodSize = horizontalYSlice(originX, originY, sliceCounter, true);
+		System.out.println("fourthMethodSize: " + fourthMethodSize);
 		if(fourthMethodSize == minTomatoes + minMushrooms) {//if this method is the smallest any method can be
 			return true;
 		}
@@ -92,37 +99,38 @@ public class Program {
 			
 		}
 		
-		if(minValue == Integer.MAX_VALUE) {
+		System.out.println("minValue: " + minValue);
+		System.out.println("minIndex: " + minIndex);
+		if(minValue > maxSliceSize) {//if none of the functions could create a slice
 			return false;
 		}
 		switch(minIndex) {//pick smallest slicing method
 		case 0:
-			verticalXSlice(originX, originY, sliceCounter);
+			verticalXSlice(originX, originY, sliceCounter, false);
 			break;
 		case 1:
-			verticalYSlice(originX, originY, sliceCounter);
+			verticalYSlice(originX, originY, sliceCounter, false);
 			break;
 		case 2:
-			horizontalXSlice(originX, originY, sliceCounter);
+			horizontalXSlice(originX, originY, sliceCounter, false);
 			break;
 		case 3:
-			horizontalYSlice(originX, originY, sliceCounter);
+			horizontalYSlice(originX, originY, sliceCounter, false);
 		}
 		return true;
 	}
 	
-	public static int verticalXSlice(int originX, int originY, int sliceCounter) {
+	public static int verticalXSlice(int originX, int originY, int sliceCounter, boolean isTest) {
 		if(originX == columns - 1) {
 			return Integer.MAX_VALUE;
 		}
-		
 		int containedTomatoes = 0;
 		int containedMushrooms = 0;
 		int firstMethodSize = 0;
 		
 		for(int y = originY; y < rows; y++) {
 			if(pizzaSlices.get(y).get(originX) != 0 || pizzaSlices.get(y).get(originX + 1) != 0 || firstMethodSize >= maxSliceSize) {
-				revertSlice(true, originX, originY, y);
+				revertSliceRect(true, originX, originY, y - 1);
 				return Integer.MAX_VALUE;
 			}
 			
@@ -142,21 +150,22 @@ public class Program {
 			
 			firstMethodSize += 2;
 			if(containedTomatoes >= minTomatoes && containedMushrooms >= minMushrooms) {
-				if(firstMethodSize != minTomatoes + minMushrooms) {//it is only necessary to revert slice size if it is not the smallest possible size
-					revertSlice(true, originX, originY, y);
+				if(firstMethodSize != minTomatoes + minMushrooms && isTest) {//it is only necessary to revert slice size if it is not the smallest possible size
+					revertSliceRect(true, originX, originY, y);
 				}
 				return firstMethodSize;
 			}
 		}
+		revertSliceRect(true, originX, originY, rows - 1);
 		return Integer.MAX_VALUE;//this is actually impossible to hit but Eclipse is complaining when this is not here
 	}
-	public static int verticalYSlice(int originX, int originY, int sliceCounter) {
+	public static int verticalYSlice(int originX, int originY, int sliceCounter, boolean isTest) {
 		int secondMethodSize = 0;
 		int containedTomatoes = 0;
 		int containedMushrooms = 0;
 		for(int y = originY; y < rows; y++) {
 			if(pizzaSlices.get(y).get(originX) != 0 || secondMethodSize >= maxSliceSize) {
-				revertSlice(true, originX, originY, false, y);
+				revertSliceLine(true, originX, originY, y - 1);
 				return Integer.MAX_VALUE;
 			}
 			
@@ -169,15 +178,16 @@ public class Program {
 			}
 			secondMethodSize++;
 			if(containedTomatoes >= minTomatoes && containedMushrooms >= minMushrooms) {
-				if(secondMethodSize != minTomatoes + minMushrooms) {//it is only necessary to revert slice size if it is not the smallest possible size
-					revertSlice(true, originX, originY, false, y);
+				if(secondMethodSize != minTomatoes + minMushrooms && isTest) {//it is only necessary to revert slice size if it is not the smallest possible size
+					revertSliceLine(true, originX, originY, y);
 				}
 				return secondMethodSize;//there is not a revert here since if
 			}
 		}
+		revertSliceLine(true, originX, originY, rows - 1);
 		return Integer.MAX_VALUE;
 	}
-	public static int horizontalXSlice(int originX, int originY, int sliceCounter) {
+	public static int horizontalXSlice(int originX, int originY, int sliceCounter, boolean isTest) {
 		if(originY == rows - 1) {
 			return Integer.MAX_VALUE;
 		}
@@ -186,7 +196,7 @@ public class Program {
 		int containedMushrooms = 0;
 		for(int x = originX; x < columns; x++) {
 			if(pizzaSlices.get(originY).get(x) != 0 || pizzaSlices.get(originY + 1).get(x) != 0 || thirdMethodSize >= maxSliceSize) {
-				revertSlice(false, originX, originY, x);
+				revertSliceRect(false, originX, originY, x - 1);
 				return Integer.MAX_VALUE;
 			}
 			
@@ -206,21 +216,22 @@ public class Program {
 			
 			thirdMethodSize += 2;
 			if(containedTomatoes >= minTomatoes && containedMushrooms >= minMushrooms) {
-				if(thirdMethodSize != minTomatoes + minMushrooms) {//it is only necessary to revert slice size if it is not the smallest possible size
-					revertSlice(false, originX, originY, x);
+				if(thirdMethodSize != minTomatoes + minMushrooms && isTest) {//it is only necessary to revert slice size if it is not the smallest possible size
+					revertSliceRect(false, originX, originY, x);
 				}
 				return thirdMethodSize;
 			}
 		}
+		revertSliceRect(false, originX, originY, columns - 1);
 		return Integer.MAX_VALUE;//this is actually impossible to hit but Eclipse is complaining when this is not here
 	}
-	public static int horizontalYSlice(int originX, int originY, int sliceCounter) {
+	public static int horizontalYSlice(int originX, int originY, int sliceCounter, boolean isTest) {
 		int fourthMethodSize = 0;
 		int containedTomatoes = 0;
 		int containedMushrooms = 0;
 		for(int x = originX; x < columns; x++) {
 			if(pizzaSlices.get(originY).get(x) != 0 || fourthMethodSize >= maxSliceSize) {
-				revertSlice(false, originX, originY, false, x);
+				revertSliceLine(false, originX, originY, x - 1);
 				return Integer.MAX_VALUE;
 			}
 			
@@ -233,12 +244,13 @@ public class Program {
 			}
 			fourthMethodSize++;
 			if(containedTomatoes >= minTomatoes && containedMushrooms >= minMushrooms) {
-				if(fourthMethodSize != minTomatoes + minMushrooms) {//it is only necessary to revert slice size if it is not the smallest possible size
-					revertSlice(false, originX, originY, false, x);
+				if(fourthMethodSize != minTomatoes + minMushrooms && isTest) {//it is only necessary to revert slice size if it is not the smallest possible size
+					revertSliceLine(false, originX, originY, x);
 				}
 				return fourthMethodSize;
 			}
 		}
+		revertSliceLine(false, originX, originY, columns - 1);
 		return Integer.MAX_VALUE;
 	}
 	
@@ -251,38 +263,28 @@ public class Program {
 			}
 		}
 	}
-	public static void revertSlice(boolean method, int originX, int originY, int lastValue) {//if method = true its vertical slice otherwise its horizontal
+	public static void revertSliceRect(boolean method, int originX, int originY, int lastValue) {//if method = true its vertical slice otherwise its horizontal
 		if(method) {
-			for(int y = lastValue; y >= originY + 1; y--) {
+			for(int y = lastValue; y >= originY; y--) {
 				pizzaSlices.get(y).set(originX, 0);
 				pizzaSlices.get(y).set(originX + 1, 0);
 			}
 		}else {
-			for(int x = lastValue; x >= originX + 1; x--) {
-				pizzaSlices.get(x).set(originY, 0);
-				pizzaSlices.get(x).set(originY + 1, 0);
+			for(int x = lastValue; x >= originX; x--) {
+				pizzaSlices.get(originY).set(x, 0);
+				pizzaSlices.get(originY + 1).set(x, 0);
 			}
 		}
 		
 	}
-	public static void revertSlice(boolean method, int originX, int originY, boolean twoColumns, int lastValue) {//if method = true its vertical slice otherwise its horizontal
+	public static void revertSliceLine(boolean method, int originX, int originY, int lastValue) {//if method = true its vertical slice otherwise its horizontal
 		if(method) {
-			for(int y = lastValue; y >= originY + 1; y--) {
+			for(int y = lastValue; y >= originY; y--) {
 				pizzaSlices.get(y).set(originX, 0);
 			}
-			if(twoColumns) {
-				for(int y = lastValue; y >= originY + 1; y--) {
-					pizzaSlices.get(y).set(originX + 1, 0);
-				}
-			}
 		}else {
-			for(int x = lastValue; x >= originX + 1; x--) {
-				pizzaSlices.get(x).set(originY, 0);
-			}
-			if(twoColumns) {
-				for(int x = lastValue; x >= originX + 1; x--) {
-					pizzaSlices.get(x).set(originY + 1, 0);
-				}
+			for(int x = lastValue; x >= originX; x--) {
+				pizzaSlices.get(originY).set(x, 0);
 			}
 		}
 		
