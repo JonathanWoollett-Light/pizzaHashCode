@@ -40,7 +40,7 @@ public class Program {
 		//loops through all coordinates in the pizza and creates a slice if possible, keep in mind there will still almost certainly be spaces after this has finished
 		for(int y = 0; y < rows; y++) {
 			for(int x = 0; x < columns; x++) {
-				if(pizzaSlices.get(y).get(x) == 0) {
+				if(pizzaSlices.get(y).get(x) == 0) {//if this space is not in any other slice
 					if(createSlice(x, y, sliceCounter)) {//if a slice can be created from this origin
 						sliceCounter++;
 					}
@@ -48,6 +48,7 @@ public class Program {
 			}
 		}
 	}
+	
 	public static boolean createSlice(int originX, int originY, int sliceCounter) {
 		/* runs through all methods of creating slices then picks slice with smallest size
 		 * the red underline here seems stupid since it actually does always return a boolean)
@@ -409,6 +410,7 @@ public class Program {
 		}
 		System.out.println("}");
 	}
+	
 	public static void intialisePizzaSlices() {
 		ArrayList<Integer> holder = new ArrayList<Integer>(Collections.nCopies(columns, 0));
 		for(int y = 0; y < rows; y++) {
